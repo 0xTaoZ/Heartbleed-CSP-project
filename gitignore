@@ -1,0 +1,32 @@
+# Build artifacts
+*.o
+*.a
+*.so
+*.so.*
+build/
+*.out
+a.out
+
+# OpenSSL source tarballs / extracted sources (downloaded during build, don't commit)
+openssl-*.tar.gz
+openssl-1.0.1*/
+
+# Fuzzing output
+detection/fuzzing/findings/
+crash-*
+*.cur_input
+
+# Keys / certs generated for the test lab (never commit real or generated keys)
+*.pem
+*.key
+*.crt
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# Logs (keep curated results in results/, ignore raw noise)
+*.log
