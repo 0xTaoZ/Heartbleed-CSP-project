@@ -1,0 +1,25 @@
+# Runs automatically on every Pull Request and on every push to main.
+# It builds the Docker lab so we know the project still works.
+
+name: build
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get the code
+        uses: actions/checkout@v4
+
+      - name: Build the lab containers
+        run: |
+          if [ -f docker-compose.yml ]; then
+            docker compose build
+          else
+            echo "No docker-compose.yml yet, nothing to build."
+            echo "This step will build the lab once docker-compose.yml is added."
+          fi
