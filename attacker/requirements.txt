@@ -1,0 +1,3 @@
+# No third-party packages. The Heartbleed client uses the Python standard
+# library only (socket, struct, re).
+# 不用第三方包。Heartbleed 客户端只用 Python 标准库(socket、struct、re)。
