@@ -1,30 +1,26 @@
 # Heartbleed lab: 3 containers on one internal, offline network.
-# Heartbleed 靶场:3 个容器,跑在一个隔离的内部网络里(不通外网)。
 # Build: docker compose build    Run: docker compose up
-# On Apple Silicon, colima needs Rosetta on.  苹果芯片上 colima 需开启 Rosetta。
+# On Apple Silicon, colima needs Rosetta on.
 
 services:
-  vulnerable:            # OpenSSL 1.0.1f, the target  有漏洞的靶标
+  vulnerable:            # OpenSSL 1.0.1f, the target
     build: ./vulnerable
     platform: linux/amd64
     # required:false: build/CI still work without secrets.env (it's not in git).
-    # required:false:没有 secrets.env 时(CI 或刚克隆)也能构建,构建本就不需要它。
     env_file:
       - path: ./shared/secrets.env
         required: false
     networks: [labnet]
 
-  patched:               # OpenSSL 1.0.1g, the control  打补丁的对照组
+  patched:               # OpenSSL 1.0.1g, the control
     build: ./patched
     platform: linux/amd64
-    # required:false: build/CI still work without secrets.env (it's not in git).
-    # required:false:没有 secrets.env 时(CI 或刚克隆)也能构建,构建本就不需要它。
     env_file:
       - path: ./shared/secrets.env
         required: false
     networks: [labnet]
 
-  attacker:              # Python client box, gets no secrets  攻击机,不给秘密
+  attacker:              # Python client box, gets no secrets
     build: ./attacker
     platform: linux/amd64
     depends_on: [vulnerable, patched]
@@ -32,4 +28,4 @@ services:
 
 networks:
   labnet:
-    internal: true       # no route to the internet  不通外网
+    internal: true       # no route to the internet
