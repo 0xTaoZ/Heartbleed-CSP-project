@@ -21,6 +21,10 @@ crash-*
 *.key
 *.crt
 
+# Planted lab secrets are generated locally (see shared/secrets.env.example);
+# never commit the real flag/token. Only the .example template is tracked.
+shared/secrets.env
+
 # OS / editor junk
 .DS_Store
 Thumbs.db

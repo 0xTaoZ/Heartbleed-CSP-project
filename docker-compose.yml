@@ -1,0 +1,31 @@
+# Heartbleed lab: 3 containers on one internal, offline network.
+# Build: docker compose build    Run: docker compose up
+# On Apple Silicon, colima needs Rosetta on.
+
+services:
+  vulnerable:            # OpenSSL 1.0.1f, the target
+    build: ./vulnerable
+    platform: linux/amd64
+    # required:false: build/CI still work without secrets.env (it's not in git).
+    env_file:
+      - path: ./shared/secrets.env
+        required: false
+    networks: [labnet]
+
+  patched:               # OpenSSL 1.0.1g, the control
+    build: ./patched
+    platform: linux/amd64
+    env_file:
+      - path: ./shared/secrets.env
+        required: false
+    networks: [labnet]
+
+  attacker:              # Python client box, gets no secrets
+    build: ./attacker
+    platform: linux/amd64
+    depends_on: [vulnerable, patched]
+    networks: [labnet]
+
+networks:
+  labnet:
+    internal: true       # no route to the internet
