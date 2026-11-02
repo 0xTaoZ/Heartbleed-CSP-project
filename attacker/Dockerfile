@@ -8,5 +8,6 @@ WORKDIR /app
 
 # Standard library only, no third-party packages.
 COPY requirements.txt ./
+COPY heartbleedExploit.py ./
 
-CMD ["python3", "-c", "print('attacker container ready; exploit scripts go in attacker/')"]
+CMD ["python3", "heartbleedExploit.py", "vulnerable"]
