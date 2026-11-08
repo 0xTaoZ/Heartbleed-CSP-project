@@ -1,52 +1,104 @@
-# Heartbleed lab: 3 containers on one internal, offline network.
-# Build: docker compose build    Run: docker compose up
-# On Apple Silicon, colima needs Rosetta on.
-
 services:
-  vulnerable:            # OpenSSL 1.0.1f, the target
-    build: ./vulnerable
+  vulnerable:
+    build:
+      context: ./vulnerable
     platform: linux/amd64
-    # required:false: build/CI still work without secrets.env (it's not in git).
+
     env_file:
       - path: ./shared/secrets.env
         required: false
-    networks: [labnet]
-    # Healthy only once a TLS handshake succeeds, so the attacker waits for a
-    # real server. A plain TCP probe would make the server log a handshake error.
+
+    networks:
+      - labnet
+
     healthcheck:
-      test: ["CMD-SHELL", "/opt/openssl-1.0.1f/bin/openssl s_client -connect 127.0.0.1:4433 </dev/null >/dev/null 2>&1"]
+      test:
+        [
+          "CMD-SHELL",
+          "/opt/openssl-1.0.1f/bin/openssl s_client -connect localhost:4433 </dev/null >/dev/null 2>&1"
+        ]
       interval: 2s
       timeout: 5s
       retries: 20
       start_period: 5s
 
-  patched:               # OpenSSL 1.0.1g, the control
-    build: ./patched
+    restart: unless-stopped
+
+  patched:
+    build:
+      context: ./patched
     platform: linux/amd64
+
     env_file:
       - path: ./shared/secrets.env
         required: false
-    networks: [labnet]
-    # Healthy only once a TLS handshake succeeds, so the attacker waits for a
-    # real server. A plain TCP probe would make the server log a handshake error.
+
+    networks:
+      - labnet
+
     healthcheck:
-      test: ["CMD-SHELL", "/opt/openssl-1.0.1g/bin/openssl s_client -connect 127.0.0.1:4433 </dev/null >/dev/null 2>&1"]
+      test:
+        [
+          "CMD-SHELL",
+          "/opt/openssl-1.0.1g/bin/openssl s_client -connect localhost:4433 </dev/null >/dev/null 2>&1"
+        ]
       interval: 2s
       timeout: 5s
       retries: 20
       start_period: 5s
 
-  attacker:              # Python client box, gets no secrets
-    build: ./attacker
+    restart: unless-stopped
+
+  webapp:
+    build:
+      context: ./webapp
+
+    environment:
+      DEMO_USER: "student@example.local"
+      DEMO_PASSWORD: "heartbleed-lab"
+
+    # Publish container port 8080 on your Mac's port 8090.
+    ports:
+      - "8090:8080"
+
+    networks:
+      - labnet
+
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python3",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:8080/health', timeout=2)"
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 3s
+
+    restart: unless-stopped
+
+  attacker:
+    build:
+      context: ./attacker
     platform: linux/amd64
-    # Wait until both servers are healthy (port accepting), not just started.
+
     depends_on:
       vulnerable:
         condition: service_healthy
       patched:
         condition: service_healthy
-    networks: [labnet]
+      webapp:
+        condition: service_healthy
+
+    networks:
+      - labnet
+
+    stdin_open: true
+    tty: true
 
 networks:
   labnet:
-    internal: true       # no route to the internet
+    driver: bridge
+    #internal: true
