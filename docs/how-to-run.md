@@ -53,8 +53,8 @@ docker compose up -d
 docker compose ps
 ```
 
-`vulnerable` and `patched` should be `Up`. `attacker` prints a message and exits
-(it is only a placeholder for now).
+`vulnerable`, `patched`, and `webapp` should be `Up`. `attacker` runs the
+Heartbleed attack against `vulnerable` and then exits.
 
 ## 5. See the servers listening
 
@@ -71,7 +71,15 @@ Look for the `ACCEPT` line. It means the TLS server is listening on port 4433.
 docker compose down
 ```
 
+## The CTF portal
+
+A login portal runs at `http://localhost:8090` (the `webapp` service). It checks
+logins against the same `LAB_USER` / `LAB_PASS` the vulnerable server keeps in
+memory. Intended path: leak those credentials from `vulnerable` with the
+Heartbleed attacker, then sign in to the portal to reveal the flag.
+
 ## Notes
 
-- `labnet` is an internal network, so the servers are not published to the host.
+- `labnet` is a bridged network so the portal is reachable from the host; the
+  lab servers hold only fake secrets.
 - `shared/secrets.env` is git-ignored.

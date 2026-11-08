@@ -53,9 +53,12 @@ services:
     build:
       context: ./webapp
 
-    environment:
-      DEMO_USER: "student@example.local"
-      DEMO_PASSWORD: "heartbleed-lab"
+    # The portal checks logins against the SAME secrets the vulnerable server
+    # keeps in memory, so the credentials a player leaks via Heartbleed are
+    # exactly what signs them in. required:false keeps build and CI working.
+    env_file:
+      - path: ./shared/secrets.env
+        required: false
 
     # Publish container port 8080 on your Mac's port 8090.
     ports:
@@ -100,5 +103,6 @@ services:
 
 networks:
   labnet:
+    # Bridged (not internal) so the CTF portal is reachable from the host and
+    # players. The lab servers hold only fake secrets.
     driver: bridge
-    #internal: true
