@@ -11,6 +11,14 @@ services:
       - path: ./shared/secrets.env
         required: false
     networks: [labnet]
+    # Healthy only once a TLS handshake succeeds, so the attacker waits for a
+    # real server. A plain TCP probe would make the server log a handshake error.
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/openssl-1.0.1f/bin/openssl s_client -connect 127.0.0.1:4433 </dev/null >/dev/null 2>&1"]
+      interval: 2s
+      timeout: 5s
+      retries: 20
+      start_period: 5s
 
   patched:               # OpenSSL 1.0.1g, the control
     build: ./patched
@@ -19,11 +27,24 @@ services:
       - path: ./shared/secrets.env
         required: false
     networks: [labnet]
+    # Healthy only once a TLS handshake succeeds, so the attacker waits for a
+    # real server. A plain TCP probe would make the server log a handshake error.
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/openssl-1.0.1g/bin/openssl s_client -connect 127.0.0.1:4433 </dev/null >/dev/null 2>&1"]
+      interval: 2s
+      timeout: 5s
+      retries: 20
+      start_period: 5s
 
   attacker:              # Python client box, gets no secrets
     build: ./attacker
     platform: linux/amd64
-    depends_on: [vulnerable, patched]
+    # Wait until both servers are healthy (port accepting), not just started.
+    depends_on:
+      vulnerable:
+        condition: service_healthy
+      patched:
+        condition: service_healthy
     networks: [labnet]
 
 networks:
