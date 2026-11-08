@@ -10,8 +10,10 @@ PORT = 8080
 
 DEMO_USER = os.environ.get("LAB_USER", "student@example.local")
 DEMO_PASSWORD = os.environ.get("LAB_PASS", "heartbleed-lab")
-# Dynamic CTF Flag injected into runtime memory upon startup/login
-FLAG = os.environ.get("LAB_FLAG", "CTF_FLAG{h3artbl33d_m3m0ry_l3ak_2026}")
+# The real CTF flag is injected at runtime via LAB_FLAG (from the gitignored
+# shared/secrets.env). This committed default is only a placeholder, so the
+# real flag is never checked into the repository.
+FLAG = os.environ.get("LAB_FLAG", "CTF_FLAG{PLACEHOLDER-set-LAB_FLAG-at-runtime}")
 
 # In-memory storage simulating active server sessions on the heap
 ACTIVE_SESSIONS = {}
