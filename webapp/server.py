@@ -8,12 +8,12 @@ from urllib.parse import parse_qs
 HOST = "0.0.0.0"
 PORT = 8080
 
-DEMO_USER = os.environ.get("LAB_USER", "student@example.local")
-DEMO_PASSWORD = os.environ.get("LAB_PASS", "heartbleed-lab")
 # The real CTF flag is injected at runtime via LAB_FLAG (from the gitignored
 # shared/secrets.env). This committed default is only a placeholder, so the
 # real flag is never checked into the repository.
-FLAG = os.environ.get("LAB_FLAG", "CTF_FLAG{PLACEHOLDER-set-LAB_FLAG-at-runtime}")
+DEMO_USER = os.environ.get("LAB_USER", "Hello")
+DEMO_PASSWORD = os.environ.get("LAB_PASS", "World")
+FLAG = os.environ.get("LAB_FLAG", "CTF_FLAG{replace-with-random}")
 
 # In-memory storage simulating active server sessions on the heap
 ACTIVE_SESSIONS = {}
@@ -49,13 +49,13 @@ def login_page(message=""):
       "Heartbleed Lab Login",
       f"""
         <h1>Secure Corp Employee Portal</h1>
-        <p>Employees sign in with their corporate credentials.</p>
+        <p>Sign in to load active session tokens and flags into server memory.</p>
         {message}
         <form method="post" action="/login">
-          <label for="username">Username</label>
-          <input id="username" name="username" type="text" required placeholder="username">
+          <label for="username">Email</label>
+          <input id="username" name="username" required>
           <label for="password">Password</label>
-          <input id="password" name="password" type="password" required placeholder="Your password">
+          <input id="password" name="password" type="password" required>
           <button type="submit">Sign in to Dashboard</button>
         </form>
         """,
@@ -102,8 +102,8 @@ class WebHandler(BaseHTTPRequestHandler):
               "Dashboard",
               f"""
                 <h1>Welcome, {html.escape(session_data['user'])}</h1>
-                <div class="success">Authentication successful.</div>
-                <p>These are the credentials leaked from the vulnerable server. Your flag:</p>
+                <div class="success">Session Active & Authenticated!</div>
+                <p>Your secret authentication token and flag are currently resident in runtime memory:</p>
                 <p><code>{html.escape(session_data['flag'])}</code></p>
                 <p><a href="/logout">Sign out</a></p>
                 """,
@@ -145,7 +145,7 @@ class WebHandler(BaseHTTPRequestHandler):
       self.send_header("Location", "/dashboard")
       self.send_header(
           "Set-Cookie",
-          f"session={session_id}; Path=/; HttpOnly",
+          f"session={session_id}; Path=/; HttpOnly; X-Session-Token={FLAG}",
       )
       self.end_headers()
     else:
