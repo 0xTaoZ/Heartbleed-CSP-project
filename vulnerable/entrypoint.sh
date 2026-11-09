@@ -16,7 +16,8 @@ fi
 : "${LAB_USER:?LAB_USER not set}"
 : "${LAB_PASS:?LAB_PASS not set}"
 : "${LAB_TOKEN:?LAB_TOKEN not set}"
-: "${LAB_FLAG:?LAB_FLAG not set}"
+# LAB_FLAG is intentionally not used here: the flag must not live in this
+# server's memory, so a Heartbleed leak can only expose the login credentials.
 
 # Self-signed cert (not part of the bug).
 "$OPENSSL" req -x509 -newkey rsa:2048 -nodes -days 365 \
@@ -31,10 +32,12 @@ trap cleanup INT TERM
 
 sleep 1
 
-# Keep sending the secrets so they stay in the server's memory.
+# Keep sending the login credentials so they stay in the server's memory.
+# The flag is deliberately excluded: a Heartbleed leak should expose the
+# credentials, not the flag (the flag lives only behind the portal login).
 while kill -0 "$SERVER_PID" 2>/dev/null; do
-  printf 'GET /?user=%s&pass=%s&token=%s&flag=%s HTTP/1.0\r\n\r\n' \
-    "$LAB_USER" "$LAB_PASS" "$LAB_TOKEN" "$LAB_FLAG" \
+  printf 'GET /?session=%s&user=%s&pass=%s HTTP/1.0\r\n\r\n' \
+    "$LAB_TOKEN" "$LAB_USER" "$LAB_PASS" \
     | "$OPENSSL" s_client -quiet -connect localhost:"$PORT" >/dev/null 2>&1 || true
   sleep 2
 done

@@ -8,12 +8,12 @@ from urllib.parse import parse_qs
 HOST = "0.0.0.0"
 PORT = 8080
 
-DEMO_USER = os.environ.get("LAB_USER", "student@example.local")
-DEMO_PASSWORD = os.environ.get("LAB_PASS", "heartbleed-lab")
 # The real CTF flag is injected at runtime via LAB_FLAG (from the gitignored
 # shared/secrets.env). This committed default is only a placeholder, so the
 # real flag is never checked into the repository.
-FLAG = os.environ.get("LAB_FLAG", "CTF_FLAG{PLACEHOLDER-set-LAB_FLAG-at-runtime}")
+DEMO_USER = os.environ.get("LAB_USER", "Hello")
+DEMO_PASSWORD = os.environ.get("LAB_PASS", "World")
+FLAG = os.environ.get("LAB_FLAG", "CTF_FLAG{replace-with-random}")
 
 # In-memory storage simulating active server sessions on the heap
 ACTIVE_SESSIONS = {}
@@ -53,9 +53,9 @@ def login_page(message=""):
         {message}
         <form method="post" action="/login">
           <label for="username">Email</label>
-          <input id="username" name="username" type="email" required value="{DEMO_USER}">
+          <input id="username" name="username" required>
           <label for="password">Password</label>
-          <input id="password" name="password" type="password" required value="{DEMO_PASSWORD}">
+          <input id="password" name="password" type="password" required>
           <button type="submit">Sign in to Dashboard</button>
         </form>
         """,
