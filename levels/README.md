@@ -30,7 +30,7 @@ Real flags never live in git. `level.env` only names the variable
 | # | id | objective | leaks from | status |
 |---|----|-----------|-----------|--------|
 | 1 | `attack-01` | Leak portal **login credentials**, sign in, read the flag | `vulnerable` heap | **ready** |
-| 2 | `attack-02` | Recover the webapp's **TLS private key** from leaked memory | webapp TLS | planned |
+| 2 | `attack-02` | Steal the server's **TLS private key**, decrypt the portal's published secret | `vulnerable` heap | **ready** |
 | 3 | `attack-03` | *TBD* (e.g. hijack an active **session token** from the heap) | — | planned |
 | 4 | `attack-04` | *TBD* (e.g. **heap grooming** to pull a specific secret reliably) | — | planned |
 

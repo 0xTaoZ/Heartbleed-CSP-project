@@ -8,6 +8,11 @@ services:
       - path: ./shared/secrets.env
         required: false
 
+    # The entrypoint encrypts the level-2 flag to this server's public key and
+    # writes the ciphertext here; the webapp mounts the same volume to publish it.
+    volumes:
+      - labshare:/share
+
     networks:
       - labnet
 
@@ -64,6 +69,11 @@ services:
     ports:
       - "8090:8080"
 
+    # Read-only view of the ciphertext the vulnerable server published, so the
+    # portal can serve it at /flag2.enc for level 2.
+    volumes:
+      - labshare:/share:ro
+
     networks:
       - labnet
 
@@ -100,6 +110,10 @@ services:
 
     stdin_open: true
     tty: true
+
+volumes:
+  # Carries the encrypted level-2 flag from the vulnerable server to the webapp.
+  labshare:
 
 networks:
   labnet:

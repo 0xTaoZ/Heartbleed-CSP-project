@@ -80,6 +80,22 @@ class WebHandler(BaseHTTPRequestHandler):
       self.send_html(login_page())
     elif self.path == "/health":
       self.send_html("ok", status=200)
+    elif self.path == "/flag2.enc":
+      # Level 2: the portal publishes the level-2 flag encrypted to the
+      # vulnerable server's public key. Anyone can download this ciphertext;
+      # only the (Heartbleed-leaked) private key can decrypt it.
+      try:
+        with open("/share/flag2.enc", "rb") as f:
+          blob = f.read()
+      except OSError:
+        self.send_error(404, "level-2 ciphertext not published yet")
+        return
+      self.send_response(200)
+      self.send_header("Content-Type", "application/octet-stream")
+      self.send_header("Content-Disposition", "attachment; filename=flag2.enc")
+      self.send_header("Content-Length", str(len(blob)))
+      self.end_headers()
+      self.wfile.write(blob)
     elif self.path == "/dashboard":
       cookies = SimpleCookie(self.headers.get("Cookie", ""))
       session_cookie = cookies.get("session")
