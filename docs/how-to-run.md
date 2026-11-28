@@ -17,12 +17,11 @@ git, so you make it once. Copy the example:
 cp shared/secrets.env.example shared/secrets.env
 ```
 
-Or make random values:
+Or generate a unique set (recommended — gives every player their own flags, so
+no two players share a flag value):
 
 ```sh
-rand() { head -c "$1" /dev/urandom | od -An -tx1 | tr -d ' \n'; }
-printf 'LAB_USER=admin\nLAB_PASS=S3cr3t-%s\nLAB_TOKEN=%s\nLAB_FLAG=CTF_FLAG{%s}\n' \
-  "$(rand 4)" "$(rand 16)" "$(rand 8)" > shared/secrets.env
+scripts/gen-secrets.sh
 ```
 
 ## 2. Build the images

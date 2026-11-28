@@ -17,12 +17,11 @@ nicht in Git, also legst du sie einmal an. Aus der Vorlage kopieren:
 cp shared/secrets.env.example shared/secrets.env
 ```
 
-Oder Zufallswerte erzeugen:
+Oder einen eindeutigen Satz erzeugen (empfohlen — jeder Spieler erhält eigene
+Flags, sodass kein Flag-Wert von zwei Spielern geteilt wird):
 
 ```sh
-rand() { head -c "$1" /dev/urandom | od -An -tx1 | tr -d ' \n'; }
-printf 'LAB_USER=admin\nLAB_PASS=S3cr3t-%s\nLAB_TOKEN=%s\nLAB_FLAG=CTF_FLAG{%s}\n' \
-  "$(rand 4)" "$(rand 16)" "$(rand 8)" > shared/secrets.env
+scripts/gen-secrets.sh
 ```
 
 ## 2. Images bauen
