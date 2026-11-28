@@ -23,6 +23,12 @@ heartbleed-csp/
 │   └── Dockerfile
 ├── attacker/              # Heartbleed test client (standard public PoC)
 │   └── README.md
+├── webapp/                # Secure Corp login portal (the CTF objective)
+├── ctf.sh                 # CTF game controller (list levels, briefs, grade flags)
+├── levels/                # one self-contained folder per CTF level
+│   ├── README.md          # progression map (4 attack + several defense levels)
+│   ├── _template/         # copy this to add a level
+│   └── attack-01-credentials/
 ├── detection/
 │   ├── asan/              # minimal C example built with AddressSanitizer
 │   └── fuzzing/           # simplified heartbeat parser + fuzzer
@@ -38,6 +44,22 @@ heartbleed-csp/
 docker compose build
 docker compose up
 ```
+
+## Playing the CTF
+
+The lab is structured as a capture-the-flag game. Each challenge lives in its own
+folder under `levels/` and is driven by the `ctf.sh` controller:
+
+```bash
+./ctf.sh levels                     # list all levels and their status
+./ctf.sh brief  attack-01           # read a level's objective + hints
+./ctf.sh submit attack-01 'CTF_FLAG{...}'   # grade your flag
+```
+
+Level 1 (`attack-01`): leak the portal's login credentials from the vulnerable
+TLS server with Heartbleed, then sign in at <http://localhost:8090> to reveal the
+flag. See [`levels/README.md`](levels/README.md) for the full progression and how
+to add new levels.
 
 Then run the tests (to be documented) and compare the vulnerable vs patched behaviour.
 

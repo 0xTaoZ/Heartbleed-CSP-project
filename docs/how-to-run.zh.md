@@ -15,12 +15,10 @@
 cp shared/secrets.env.example shared/secrets.env
 ```
 
-或生成随机值:
+或生成一套唯一的密钥(推荐——每位玩家都有自己的 flag,任何 flag 值都不会被两名玩家共用):
 
 ```sh
-rand() { head -c "$1" /dev/urandom | od -An -tx1 | tr -d ' \n'; }
-printf 'LAB_USER=admin\nLAB_PASS=S3cr3t-%s\nLAB_TOKEN=%s\nLAB_FLAG=CTF_FLAG{%s}\n' \
-  "$(rand 4)" "$(rand 16)" "$(rand 8)" > shared/secrets.env
+scripts/gen-secrets.sh
 ```
 
 ## 2. 构建镜像
