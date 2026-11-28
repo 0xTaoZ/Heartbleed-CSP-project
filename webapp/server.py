@@ -15,8 +15,22 @@ DEMO_USER = os.environ.get("LAB_USER", "Hello")
 DEMO_PASSWORD = os.environ.get("LAB_PASS", "World")
 FLAG = os.environ.get("LAB_FLAG", "CTF_FLAG{replace-with-random}")
 
+# Level 3 (session hijacking). LAB_TOKEN is the session id of a victim who is
+# already signed in; LAB_FLAG_L3 is what their dashboard shows. The vulnerable
+# TLS server keeps LAB_TOKEN resident in its heap, so a Heartbleed over-read
+# leaks this live session. The victim is a DIFFERENT account from the level-1
+# login (and has no accepted form password here), so the only way to become them
+# is to steal and replay the token — no credentials, no login form, past any 2FA.
+VICTIM_TOKEN = os.environ.get("LAB_TOKEN")
+VICTIM_USER = "cfo@securecorp.lab"
+FLAG_L3 = os.environ.get("LAB_FLAG_L3", "CTF_FLAG{session-replace-me}")
+
 # In-memory storage simulating active server sessions on the heap
 ACTIVE_SESSIONS = {}
+
+# Pre-seed the victim's live session so it exists before the player ever logs in.
+if VICTIM_TOKEN:
+  ACTIVE_SESSIONS[VICTIM_TOKEN] = {"user": VICTIM_USER, "flag": FLAG_L3}
 
 
 def page(title, content):

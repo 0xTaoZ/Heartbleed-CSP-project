@@ -31,7 +31,7 @@ Real flags never live in git. `level.env` only names the variable
 |---|----|-----------|-----------|--------|
 | 1 | `attack-01` | Leak portal **login credentials**, sign in, read the flag | `vulnerable` heap | **ready** |
 | 2 | `attack-02` | Steal the server's **TLS private key**, decrypt the portal's published secret | `vulnerable` heap | **ready** |
-| 3 | `attack-03` | *TBD* (e.g. hijack an active **session token** from the heap) | — | planned |
+| 3 | `attack-03` | Hijack a victim's live **session token**, replay it to the dashboard (no login) | `vulnerable` heap | **ready** |
 | 4 | `attack-04` | *TBD* (e.g. **heap grooming** to pull a specific secret reliably) | — | planned |
 
 ### Defense (several levels)
@@ -43,5 +43,5 @@ Real flags never live in git. `level.env` only names the variable
 
 The attack levels escalate the *value* of what Heartbleed leaks (credentials →
 key → live session → reliable extraction); the defense levels walk from
-"patch it" to "catch it automatically". Levels 3–4 and the defense specifics are
+"patch it" to "catch it automatically". Level 4 and the defense specifics are
 placeholders — lock them in as the lab grows.

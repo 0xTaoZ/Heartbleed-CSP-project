@@ -22,7 +22,8 @@ fi
 : "${LAB_TOKEN:?LAB_TOKEN not set}"
 : "${LAB_FLAG_L2:?LAB_FLAG_L2 not set}"
 # LAB_FLAG (level 1) is intentionally not used here: the level-1 flag must not
-# live in this server's memory, only the login credentials do.
+# live in this server's memory — only the leakable material does (login
+# credentials, the session token, and the TLS private key).
 
 # Self-signed cert + RSA private key. This KEY is the level-2 objective: it is
 # kept resident in the server's heap (below) so a Heartbleed over-read leaks it.
@@ -58,10 +59,11 @@ trap cleanup INT TERM
 
 sleep 1
 
-# Plant BOTH secrets in ONE padded request so a single over-read leaks them
-# together: the login credentials (level 1) and the TLS private key (level 2).
-# A separate small creds request gets overwritten in the heap by the big key
-# request, so it would rarely leak; keeping them in one request fixes that.
+# Plant ALL the secrets in ONE padded request so a single over-read leaks them
+# together: the login credentials (level 1), the TLS private key (level 2), and
+# the victim's live session token (level 3, the session= field). A separate small
+# request gets overwritten in the heap by the big key request, so it would rarely
+# leak; keeping them in one request fixes that.
 # The GET primitive is answered by -WWW and then closed, so s_client exits
 # cleanly and the single-threaded server is never wedged. The leading pad absorbs
 # the fixed head-loss of the over-read; the credentials sit right after it, the
